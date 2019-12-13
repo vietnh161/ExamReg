@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="col-xs-6">
     <b-form-group>
       <b-button class="btn btn-info" v-b-modal.modal-add size="sm">Add</b-button>
       <b-form-radio-group

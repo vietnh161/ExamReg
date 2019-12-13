@@ -80,6 +80,8 @@
   <ItemGroup>
     <Compile Include="Models\ApplicationUser.cs" />
     <Compile Include="Models\CaThi.cs" />
+    <Compile Include="Models\ChiTietSvLhp.cs" />
+    <Compile Include="Models\KiThi.cs" />
     <Compile Include="Models\LichThi.cs" />
     <Compile Include="Models\LopHocPhan.cs" />
     <Compile Include="Models\MonThi.cs" />

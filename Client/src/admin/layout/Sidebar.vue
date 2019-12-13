@@ -1,16 +1,16 @@
 <template>
-  <div>
-    <div class="bg-light border-right" id="sidebar-wrapper">
-      <div class="sidebar-heading">Start Bootstrap</div>
-      <div class="list-group list-group-flush">
-        <SidebarLink v-bind:links="links"></SidebarLink>
-      </div>
-    </div>
-  </div>
+  <nav id="sidebar">
+    <ul class="list-unstyled components">
+      <li class="nav-item">
+        <h3 class="custom">Admin Page</h3>
+      </li>
+      <SidebarLink :links="links"></SidebarLink>
+    </ul>
+  </nav>
 </template>
-
 <script>
 import SidebarLink from "./SidebarLink";
+
 export default {
   name: "Sidebar",
   components: {
@@ -20,31 +20,40 @@ export default {
     return {
       links: [
         {
+          name: "Thêm kì thi",
+          link: "/admin/kithi"
+        },
+        {
           name: "Danh sách môn thi",
-          link: "#/admin/monthi-hocphan"
+          link: "/admin/monthi"
         },
-          {
-          name:  "Danh sách sinh viên",
-          link: "#/admin/dssinhvien"
+        {
+          name: "Danh sách sinh viên",
+          link: "/admin/sinhvien"
         },
-          {
+        {
           name: "Danh sách dự thi",
-          link: "#/admin/dshocphan"
+          link: "/admin/hocphan"
         },
-          {
+        {
           name: "Danh sách lịch thi",
-          link: "#/admin/dslichthi"
-        }
+          link: "/admin/lichthi"
+        },
+        {
+          name: "Thêm danh sách sinh viên",
+          link: "/admin/sinhvien/addmulti"
+        },
+       
+        
       ]
     };
   },
   methods: {}
 };
-//  "Môn thi / Học Phần",
-//         "Danh sách sinh viên",
-//         "Danh sách sinh viên đủ / chưa đủ điều kiện thi",
-//         "Quản lí kì thi",
-//         "In danh sách sinh viên theo phòng/ca thi"
 </script>
-<style>
+<style scoped>
+.custom{
+  text-align: center;
+  padding-top: 5px;
+}
 </style>

@@ -3,12 +3,12 @@
     <b-container fluid class="mt-2">
       <b-row>
         <b-col lg="12">
-          <h4 class="mb-4 mt-2">Phát triển ứng dụng web: INT3306 1</h4>
+          <h4 class="mb-4 mt-2">{{lopHp.name}} - {{lopHp.title}}</h4>
         </b-col>
         <b-col lg="1">
-          <b-button size="sm">Chỉnh sửa</b-button>
+        
         </b-col>
-        <b-col lg="2">
+        <b-col lg="2" md="4">
           <b-form-group
             label="Hien thi"
             label-align-sm="right"
@@ -22,10 +22,10 @@
             <b-form-select v-model="perPage" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
           </b-form-group>
         </b-col>
-        <b-col lg="6">
+        <b-col lg="6"  md="8" class="mb-2">
           <b-form-group
             label="Tim kiem"
-            label-cols-sm="1"
+            label-cols-sm="2"
             label-align-sm="right"
             label-size="sm"
             label-for="filterInput"
@@ -33,10 +33,11 @@
           >
             <b-input-group size="sm">
               <b-form-input
+                debounce="1000"
                 v-model="filter"
                 type="search"
                 id="filterInput"
-                placeholder="Type to Search"
+                placeholder="Mssv hoặc Họ và tên"
               ></b-form-input>
               <b-input-group-append>
                 <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
@@ -46,6 +47,7 @@
         </b-col>
 
         <b-col lg="3">
+          <b-row>
           <ActionDsDuThi
             :items="items"
             @changeMode="changeMode"
@@ -57,35 +59,36 @@
             :acceptDel="acceptDel"
             :acceptEdit="acceptEdit"
           />
-        </b-col>
+      
+           <b-col xs="6">
+          <b-spinner label="loading..." v-show="isBusy"></b-spinner>
+          </b-col>
+          </b-row>
+            </b-col>
       </b-row>
       <b-table
-        class="mt-2"
+       sticky-header="750px"
         bordered
         outlined
         hover
-        stacked="md"
+        
+        :busy.sync="isBusy"
         :id="id"
         :selectable="true"
         :select-mode="mode"
-        :items="items"
+        :items="myProvider"
         :fields="fields"
         :current-page="currentPage"
         :per-page="perPage"
         :filter="filter"
         :sort-by.sync="sortBy"
         :sort-desc.sync="sortDesc"
-        @filtered="onFiltered"
         @row-selected="getItemSelected"
       ></b-table>
       <b-row>
         <b-col lg="4">
           <p
-            v-if="filter == false || filter == null"
           >Đang hiển thị {{perPage > totalRows? totalRows : perPage}} / {{perPage > totalRows? perPage:totalRows}} item</p>
-          <p
-            v-if="!filter == false"
-          >Đang hiển thị {{searchCount > perPage ? perPage: searchCount}} / {{searchCount > perPage ? searchCount: perPage}} item</p>
         </b-col>
         <b-col lg="4">
           <b-pagination
@@ -105,7 +108,7 @@
 </template>
 <script>
 import ActionDsDuThi from "./utils/ActionDsDuThi";
-
+import axios from 'axios'
 export default {
   components: {
     ActionDsDuThi
@@ -113,55 +116,28 @@ export default {
   data() {
     return {
       fields: [
-        { key: "SinhVien.MSSV", label:"MSSV", sortable: true },
-        { key: "SinhVien.Name",label:"Họ và tên", sortable: true },
+        { key: "sinhVien.mssv", label:"MSSV",  },
+        { key: "sinhVien.fullName",label:"Họ và tên",  },
         {
-          key: "DuDieuKien",
+          key: "duDieuKien",
           label: "Qua môn",
           formatter: value => {
             return value ? "Có" : "Không";
           }
         }
       ],
-      items: [
-        {
-          Id: 1,
-          SinhVien: { MSSV: 123, Name: "Dickerson Macdonald1" },
-          DuDieuKien: true
-        },
-        {
-          Id: 2,
-          SinhVien: { MSSV: 123, Name: "Dickerson Macdonald1" },
-          DuDieuKien: true
-        },
-
-        {
-          Id: 3,
-          SinhVien: { MSSV: 123, Name: "Dickerson Macdonald3" },
-          DuDieuKien: true
-        },
-
-        {
-          Id: 4,
-          SinhVien: { MSSV: 123, Name: "Dickerson Macdonald4" },
-          DuDieuKien: true
-        },
-        {
-          Id: 5,
-          SinhVien: { MSSV: 123, Name: "Dickerson Macdonald" },
-          DuDieuKien: true
-        }
-      ],
+      items: [],
 
       id: "tableSv",
-      perPage: 10,
-      pageOptions: [10, 20, 40],
+      perPage: 15,
+      pageOptions: [15, 30, 45],
       filter: null,
       totalRows: 1,
       currentPage: 1,
       sortBy: "id",
       sortDesc: false,
       mode: "single",
+      isBusy: false,
 
       searchCount: null,
 
@@ -171,20 +147,59 @@ export default {
       itemEdit: Object,
       idDel: Array,
       acceptDel: null,
-      acceptEdit: null
+      acceptEdit: null,
+      lopHp:{
+        lopHpId:null,
+        title:"",
+        name:""
+      }
     };
+  },
+  created(){
+    this.lopHp.lopHpId = this.$route.params.id;
+       axios.get('http://localhost:63834/api/hocphan/getbyid/' + this.lopHp.lopHpId)
+      .then(response => {
+        this.lopHp = response.data;
+      })
+      .catch(error => {
+        console.log(error.response.data);
+      });
   },
   mounted() {
     // Set the initial number of items
     this.totalRows = this.items.length;
   },
   methods: {
-    onFiltered(filteredItems) {
-      // Trigger pagination to update the number of buttons/pages due to filtering
-      this.totalRows = filteredItems.length;
-      this.searchCount = filteredItems.length;
-      this.currentPage = 1;
+     myProvider(ctx) {
+       var a = this;
+      this.isBusy = true;
+      var params =
+        "?currentPage=" + ctx.currentPage + "&pageSize=" + ctx.perPage +"&lopHpId=" +  this.lopHp.lopHpId;
+      if(ctx.filter){
+         params += "&keyword=" + ctx.filter;
+      }else{
+         params += "&keyword=null";
+      }
+      const promise = axios.get(
+        "http://localhost:63834/api/sinhvienlophp/getmultipaging" + params
+      );
+      return promise.then(response => {
+        const items = response.data;
+        this.totalRows = items.totalRow;
+        this.isBusy = false;
+        return items.result || [];
+      })
+      .catch(function (error) {
+       if (error.response) {
+         if(error.response.status == 400){
+           // a.$bvModal.msgBoxOk("Vui lòng nhập đúng đường dẫn")
+           a.$router.push("/notfound")
+         }
+    }
+  });
+      
     },
+  
     update(obj) {
       console.log(obj);
       for (var i in this.items) {

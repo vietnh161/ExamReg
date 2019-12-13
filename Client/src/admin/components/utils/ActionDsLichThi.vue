@@ -20,32 +20,26 @@
         @click="showMsgDelete"
       >Delete</b-button>
     </b-form-group>
-    <b-modal
-      id="modal-edit"
-      ref="edit"
-      title="BootstrapVue"
-      hide-header
-      hide-footer
-   
-    >
+    <b-modal id="modal-edit" ref="edit" title="BootstrapVue" hide-header hide-footer>
       <b-form @submit.stop.prevent="EditSubmit">
+        <label style="color:red">{{message}}</label>
         <b-form-group :label="'Mã học phần'">
-          <b-form-select v-model="itemEdit.LopHocPhanId" :options="mahp" required></b-form-select>
+          <b-form-input v-model="maHocPhanEdit" required></b-form-input>
         </b-form-group>
         <b-form-group :label="'Ca thi'">
-          <b-form-select v-model="itemEdit.CaThiId" :options="cathi" required></b-form-select>
+          <b-form-select v-model="itemEdit.caThiId" :options="cathi" required></b-form-select>
         </b-form-group>
         <b-form-group :label="'Phòng thi'">
-          <b-form-select v-model="itemEdit.PhongThiId" :options="phongthi" required></b-form-select>
+          <b-form-select v-model="itemEdit.phongThiId" :options="phongthi" required></b-form-select>
         </b-form-group>
         <b-form-group :label="'Ngày thi'">
-          <b-form-input type="date" v-model="itemEdit.NgayThi" required></b-form-input>
+          <b-form-input type="date" v-model="itemEdit.ngayThi" required></b-form-input>
         </b-form-group>
         <b-form-group :label="'Giờ bắt đầu'">
-          <b-form-input type="time" v-model="itemEdit.GioBatDau" required></b-form-input>
+          <b-form-input type="time" v-model="itemEdit.gioBatDau" required></b-form-input>
         </b-form-group>
         <b-form-group :label="'Giờ kết thúc'">
-          <b-form-input type="time" v-model="itemEdit.GioKetThuc" required></b-form-input>
+          <b-form-input type="time" v-model="itemEdit.gioKetThuc" required></b-form-input>
         </b-form-group>
         <b-row align-h="end">
           <b-col lg="4">
@@ -57,23 +51,24 @@
     </b-modal>
     <b-modal id="modal-add" ref="add" title="BootstrapVue" hide-header hide-footer>
       <b-form @submit.stop.prevent="AddSubmit">
+        <label style="color:red">{{message}}</label>
         <b-form-group label="Mã học phần">
-          <b-form-select v-model="itemAdd.LopHocPhanId" :options="mahp" required></b-form-select>
+          <b-form-input v-model="itemAdd.lopHocPhan.title" required></b-form-input>
         </b-form-group>
         <b-form-group :label="'Ca thi'">
-          <b-form-select v-model="itemAdd.CaThiId" :options="cathi" required></b-form-select>
+          <b-form-select v-model="itemAdd.caThiId" :options="cathi" required></b-form-select>
         </b-form-group>
         <b-form-group :label="'Phòng thi'">
-          <b-form-select v-model="itemAdd.PhongThiId" :options="phongthi" required></b-form-select>
+          <b-form-select v-model="itemAdd.phongThiId" :options="phongthi" required></b-form-select>
         </b-form-group>
         <b-form-group :label="'Ngày thi'">
-          <b-form-input type="date" v-model="itemAdd.NgayThi" required></b-form-input>
+          <b-form-input type="date" v-model="itemAdd.ngayThi" required></b-form-input>
         </b-form-group>
         <b-form-group :label="'Giờ bắt đầu'">
-          <b-form-input type="time" v-model="itemAdd.GioBatDau" required></b-form-input>
+          <b-form-input type="time" v-model="itemAdd.gioBatDau" required></b-form-input>
         </b-form-group>
         <b-form-group :label="'Giờ kết thúc'">
-          <b-form-input type="time" v-model="itemAdd.GioKetThuc" required></b-form-input>
+          <b-form-input type="time" v-model="itemAdd.gioKetThuc" required></b-form-input>
         </b-form-group>
         <b-row align-h="end">
           <b-col lg="4">
@@ -87,24 +82,13 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
-      mahp: [
-        { text: "INT3306 2", value: "INT3306 1" },
-        { text: "INT3306 1", value: "INT3306 2" },
-        { text: "INT3306 3", value: "INT3306 3" }
-      ],
-      cathi: [
-        { text: "ca 1", value: "1" },
-        { text: "ca 2", value: "2" },
-        { text: "ca 3", value: "3" }
-      ],
-      phongthi: [
-        { text: "phong 1", value: "1" },
-        { text: "phong 2", value: "2" },
-        { text: "phong 3", value: "3" }
-      ],
+      lophp: [],
+      cathi: [],
+      phongthi: [],
 
       selected: "edit",
       options: [
@@ -112,38 +96,58 @@ export default {
         { text: "Delete", value: "delete" }
       ],
       itemAdd: {
-        LopHocPhanId: null,
-        CathiId: null,
-        PhongthiId: null,
-        NgayThi: "",
-        GioBatDau: "",
-        GioKetThuc: "",
-        Count: "0"
+        lopHocPhanId: null,
+        caThiId: null,
+        phongThiId: null,
+        lopHocPhan: {
+          title: ""
+        },
+        ngayThi: "",
+        gioBatDau: "",
+        gioKetThuc: "",
+        count: "0",
+        kiThiId: null
       },
       isAdd: false,
-  
+      maHocPhanEdit: ""
     };
   },
   props: {
     itemEdit: null,
     idDel: null,
     acceptDel: null,
-    acceptEdit: null
+    acceptEdit: null,
+    message: null
+  },
+  created() {
+    axios
+      .get(
+        "http://localhost:63834/Api/LichThi/getallprop?kiThiId=" +
+          localStorage.kiThiId
+      )
+      .then(rsp => {
+        rsp.data.caThi.forEach(element => {
+          let data = {
+            text: element.name,
+            value: element.caThiId
+          };
+          //console.log(data);
+          this.cathi.push(data);
+        });
+        rsp.data.phongThi.forEach(element => {
+          let data = {
+            text: element.name,
+            value: element.phongThiId
+          };
+          this.phongthi.push(data);
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      });
   },
 
   methods: {
-    // handleEditOk(bvModalEvt) {
-    //   // Prevent modal from closing
-    //   bvModalEvt.preventDefault();
-    //   // Trigger submit handler
-    //   this.EditSubmit();
-    // },
-    // handleAddOk(bvModalEvt) {
-    //   // Prevent modal from closing
-    //   bvModalEvt.preventDefault();
-    //   // Trigger submit handler
-    //   this.AddSubmit();
-    // },
     closeModal(str) {
       if (str == "edit") {
         this.$nextTick(() => {
@@ -157,32 +161,30 @@ export default {
       }
     },
     EditSubmit() {
-      //console.log(Object.keys(this.item)[0]);
-      //console.log(this.itemEdit)
+      this.itemEdit.lopHocPhan.title = this.maHocPhanEdit;
       this.$emit("update", this.itemEdit);
-      this.$nextTick(() => {
-        this.$refs.edit.hide();
-      });
+      // this.$nextTick(() => {
+      //   this.$refs.edit.hide();
+      // });
     },
     AddSubmit() {
+      this.itemAdd.kiThiId = 4;
       this.$emit("add", this.itemAdd);
-      this.$nextTick(() => {
-        this.$refs.add.hide();
-      });
+      // this.$nextTick(() => {
+      //   this.$refs.add.hide();
+      // });
     },
     showMsgDelete() {
-      var canDel = false;
       this.$bvModal
         .msgBoxConfirm("Are you sure?")
         .then(value => {
-          canDel = value;
+          if (value) {
+            this.$emit("del", this.idDel);
+          }
         })
         .catch(err => {
           // An error occurred
         });
-      if (canDel) {
-        this.$emit("deleteItems", this.idDel);
-      }
     },
     changeMode() {
       var mode = "";

@@ -35,5 +35,5 @@ namespace ExamReg.WebApp
       var cors = new EnableCorsAttribute("http://localhost:8080", "*", "*");
       config.EnableCors(cors);
     }
-    }
+  }
 }

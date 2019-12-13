@@ -1,4 +1,7 @@
 using System;
+using System.Web;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using ExamReg.Data;
@@ -7,7 +10,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
-using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.OAuth;
 using Owin;
 
@@ -30,33 +33,33 @@ namespace ExamReg.WebApp.App_Start
       // Configure the sign in token base
       app.CreatePerOwinContext<UserManager<ApplicationUser>>(CreateManager);
 
-      //app.UseOAuthAuthorizationServer(new OAuthAuthorizationServerOptions
-      //  {
-      //    TokenEndpointPath = new PathString("/oauth/token"),
-      //    Provider = new AuthorizationServerProvider(),
-      //    AccessTokenExpireTimeSpan = TimeSpan.FromMinutes(30),
-      //    AllowInsecureHttp = true,
+      app.UseOAuthAuthorizationServer(new OAuthAuthorizationServerOptions
+      {
+        TokenEndpointPath = new PathString("/oauth/token"),
+        Provider = new AuthorizationServerProvider(),
+        AccessTokenExpireTimeSpan = TimeSpan.FromMinutes(360),
+        AllowInsecureHttp = true,
 
-      //  });
-      //  app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions());
+      });
+      app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions());
 
 
 
       // Configure the sign in cookie
-      app.UseCookieAuthentication(new CookieAuthenticationOptions
-      {
-        AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
-        LoginPath = new PathString("/Account/Login"),
-        Provider = new CookieAuthenticationProvider
-        {
-          // Enables the application to validate the security stamp when the user logs in.
-          // This is a security feature which is used when you change a password or add an external login to your account.
-          OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser>(
-                  validateInterval: TimeSpan.FromMinutes(30),
-                  regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
-        }
-      });
-      app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
+      //app.UseCookieAuthentication(new CookieAuthenticationOptions
+      //{
+      //  AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+      //  LoginPath = new PathString("/Account/Login"),
+      //  Provider = new CookieAuthenticationProvider
+      //  {
+      //    // Enables the application to validate the security stamp when the user logs in.
+      //    // This is a security feature which is used when you change a password or add an external login to your account.
+      //    OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager, ApplicationUser>(
+      //            validateInterval: TimeSpan.FromMinutes(30),
+      //            regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
+      //  }
+      //});
+      //app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 
             // Enables the application to temporarily store user information when they are verifying the second factor in the two-factor authentication process.
             app.UseTwoFactorSignInCookie(DefaultAuthenticationTypes.TwoFactorCookie, TimeSpan.FromMinutes(5));
@@ -90,6 +93,16 @@ namespace ExamReg.WebApp.App_Start
     {
       public override async Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
       {
+
+        //UserManager<ApplicationUser> userManager = context.OwinContext.GetUserManager<UserManager<ApplicationUser>>();
+        //ApplicationUser user;
+        //try
+        //{
+        //  user = await userManager.FindAsync(context.UserName, context.Password);
+        //}
+
+
+
         context.Validated();
       }
       public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
@@ -115,20 +128,25 @@ namespace ExamReg.WebApp.App_Start
         }
         if (user != null)
         {
-          //var applicationGroupService = ServiceFactory.Get<IApplicationGroupService>();
-          //var listGroup = applicationGroupService.GetListGroupByUserId(user.Id);
-          //if (listGroup.Any(x => x.Name == CommonConstants.Administrator))
-          //{
-            ClaimsIdentity identity = await userManager.CreateIdentityAsync(
-                           user,
-                           DefaultAuthenticationTypes.ExternalBearer);
-            context.Validated(identity);
-          //}
-          //else
-          //{
-          //  context.Rejected();
-          //  context.SetError("invalid_group", "Bạn không phải là admin");
-          //}
+
+
+          var role = userManager.GetRoles<ApplicationUser, string>(user.Id);
+
+          ClaimsIdentity identity = await userManager.CreateIdentityAsync(
+                                                 user,
+                                                 DefaultAuthenticationTypes.ExternalBearer);
+        //  var identity = new ClaimsIdentity(context.Options.AuthenticationType);
+
+          var props = new AuthenticationProperties(new Dictionary<string, string>
+                {
+                  {"fullname" , user.FullName },
+                  {"role", role[0] }
+                });
+
+          var ticket = new AuthenticationTicket(identity, props);
+          context.Validated(ticket);
+
+       //   context.Validated(identity);
 
         }
         else
@@ -137,8 +155,17 @@ namespace ExamReg.WebApp.App_Start
           context.Rejected();
         }
       }
-    }
+      public override Task TokenEndpoint(OAuthTokenEndpointContext context)
+      {
+        foreach (KeyValuePair<string, string> property in context.Properties.Dictionary)
+        {
+          context.AdditionalResponseParameters.Add(property.Key, property.Value);
+        }
 
+        return Task.FromResult<object>(null);
+      }
+    }
+    
 
 
     private static UserManager<ApplicationUser> CreateManager(IdentityFactoryOptions<UserManager<ApplicationUser>> options, IOwinContext context)

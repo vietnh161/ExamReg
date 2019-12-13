@@ -1,34 +1,37 @@
 <template>
   <div id="app">
-    <div class="d-flex" id="wrapper">
-      <Sidebar></Sidebar>
-      <div id="page-content-wrapper">
-        <PageContent v-bind:title="$route.name"></PageContent>
-        <router-view></router-view>
-        <Footer></Footer>
-      </div>
-    </div>
+    <!-- <component :is="layout">
+      <router-view :layout.sync="layout"/>
+    </component> -->
+    <router-view></router-view>
   </div>
 </template>
 <script>
-import Sidebar from "./admin/layout/Sidebar";
-import PageContent from "./admin/layout/PageContent";
-import Footer from "./admin/layout/Footer";
+const default_layout = "default";
+
 export default {
   name: "app",
-  components: {
-    Sidebar,
-    PageContent,
-    Footer
-  },
+  components: {},
   data() {
-    return {
-      str : "abc"
-    };
+    return {};
   },
   methods: {
-    
-  }
+  },
+  computed: {
+    layout() {
+      return (this.$route.meta.layout || default_layout) + "-layout";
+    }
+  },
+  // created: function() {
+  //   this.$http.interceptors.response.use(undefined, function(err) {
+  //     return new Promise(function(resolve, reject) {
+  //       if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
+  //         this.$store.dispatch(logout);
+  //       }
+  //       throw err;
+  //     });
+  //   });
+  // }
 };
 </script>
 
@@ -41,20 +44,16 @@ body {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
 }
 
 main {
-  text-align: center;
-  margin-top: 40px;
+  
 }
 
 header {
   margin: 0;
   height: 56px;
   padding: 0 16px 0 24px;
-  background-color: #f8f9fa;
-  color: #ffffff;
 }
 
 header span {

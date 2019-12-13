@@ -20,6 +20,5 @@ namespace ExamReg.Model.Models
 
         [StringLength(50)]
         public string Name { set; get; }
-
     }
 }

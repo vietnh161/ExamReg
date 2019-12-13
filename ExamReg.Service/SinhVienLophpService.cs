@@ -4,6 +4,7 @@ using ExamReg.Model.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,7 +16,10 @@ namespace ExamReg.Service
         void Update(SinhVienLophp sinhVien);
         SinhVienLophp Delete(int id);
         SinhVienLophp GetById(int id);
-        IEnumerable<SinhVienLophp> GetAll();
+		bool checkDuplicate(Expression<Func<SinhVienLophp, bool>> predicate);
+		SinhVienLophp GetByConDition(Expression<Func<SinhVienLophp, bool>> expression);
+		IEnumerable<SinhVienLophp> GetMultiPaging(int page, int pageSize, string keyword,int lopHpId, out int totalRow);
+		IEnumerable<SinhVienLophp> GetAll();
         void SaveChanges();
     }
     public class SinhVienLophpService : ISinhVienLophpService
@@ -74,7 +78,25 @@ namespace ExamReg.Service
             _unitOfWork.Commit();
         }
 
+		public bool checkDuplicate(Expression<Func<SinhVienLophp, bool>> predicate)
+		{
+			return _sinhVienLophpRepository.CheckContains(predicate);
+		}
 
-    }
+		public SinhVienLophp GetByConDition(Expression<Func<SinhVienLophp, bool>> expression)
+		{
+			return _sinhVienLophpRepository.GetSingleByCondition(expression);
+		}
+
+		public IEnumerable<SinhVienLophp> GetMultiPaging(int page, int pageSize, string keyword, int lopHpId, out int totalRow)
+		{
+			IEnumerable<SinhVienLophp> query =  _sinhVienLophpRepository.GetMultiByAdm(keyword, lopHpId);
+
+			
+			totalRow = query.Count();
+
+			return query.Skip((page - 1) * pageSize).Take(pageSize);
+		}
+	}
 
 }

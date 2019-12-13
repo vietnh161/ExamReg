@@ -27,5 +27,7 @@ namespace ExamReg.Model.Models
         [ForeignKey("LophpId")]
         public virtual LopHocPhan LopHocPhan { set; get; }
 
-    }
+
+	
+	}
 }

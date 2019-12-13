@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="col-xs-6">
     <b-form-group>
       <b-button class="btn btn-info" v-b-modal.modal-add size="sm">Add</b-button>
       <b-form-radio-group
@@ -26,29 +26,26 @@
       title="BootstrapVue"
       hide-header
       hide-footer
-      @show="updateUsername()"
     >
       <b-form @submit.stop.prevent="EditSubmit">
+         <label style="color:red">{{message}}</label>
         <b-form-group label="MSSV">
-          <b-form-input v-model="itemEdit.MSSV" type="number" required></b-form-input>
+          <b-form-input v-model="itemEdit.mssv" type="number" required></b-form-input>
         </b-form-group>
         <b-form-group label="FullName">
-          <b-form-input v-model="itemEdit.FullName" required></b-form-input>
+          <b-form-input v-model="itemEdit.fullName" required></b-form-input>
         </b-form-group>
         <b-form-group label="Address">
-          <b-form-input v-model="itemEdit.Address"></b-form-input>
+          <b-form-input v-model="itemEdit.address"></b-form-input>
         </b-form-group>
         <b-form-group label="BirthDay">
-          <b-form-input v-model="itemEdit.BirthDay" type="date" required></b-form-input>
+          <b-form-input v-model="itemEdit.birthDay" type="date" required></b-form-input>
         </b-form-group>
         <b-form-group label="Phone">
-          <b-form-input v-model="itemEdit.Phone" type="number"></b-form-input>
+          <b-form-input v-model="itemEdit.phone" type="number"></b-form-input>
         </b-form-group>
         <b-form-group label="Email">
-          <b-form-input v-model="itemEdit.Email"></b-form-input>
-        </b-form-group>
-        <b-form-group label="UserName">
-          <b-form-input v-model="username" disabled></b-form-input>
+          <b-form-input v-model="itemEdit.email"></b-form-input>
         </b-form-group>
         <b-row align-h="end">
           <b-col lg="4">
@@ -60,26 +57,27 @@
     </b-modal>
     <b-modal id="modal-add" ref="add" title="BootstrapVue" hide-header hide-footer >
       <b-form @submit.stop.prevent="AddSubmit">
+         <label style="color:red">{{message}}</label>
         <b-form-group label="MSSV">
-          <b-form-input id="MSSV" v-model="itemAdd.MSSV" type="number" required></b-form-input>
+          <b-form-input id="MSSV" v-model="itemAdd.mssv" type="number" required></b-form-input>
         </b-form-group>
         <b-form-group label="FullName">
-          <b-form-input id="FullName" v-model="itemAdd.FullName" required></b-form-input>
+          <b-form-input id="FullName" v-model="itemAdd.fullName" required></b-form-input>
         </b-form-group>
         <b-form-group label="Address">
-          <b-form-input id="Address" v-model="itemAdd.Address"></b-form-input>
+          <b-form-input id="Address" v-model="itemAdd.address"></b-form-input>
         </b-form-group>
         <b-form-group label="BirthDay">
-          <b-form-input id="BirthDay" v-model="itemAdd.BirthDay" type="date" required></b-form-input>
+          <b-form-input id="BirthDay" v-model="itemAdd.birthDay" type="date" required></b-form-input>
         </b-form-group>
         <b-form-group label="Phone">
-          <b-form-input id="Phone" v-model="itemAdd.Phone" type="number"></b-form-input>
+          <b-form-input id="Phone" v-model="itemAdd.phone" type="number"></b-form-input>
         </b-form-group>
         <b-form-group label="Email">
-          <b-form-input id="Email" v-model="itemAdd.Email"></b-form-input>
+          <b-form-input id="Email" v-model="itemAdd.email"></b-form-input>
         </b-form-group>
         <b-form-group label="UserName">
-          <b-form-input id="UserName" v-model="itemAdd.User.UserName" required></b-form-input>
+          <b-form-input id="UserName" v-model="itemAdd.user.userName" required></b-form-input>
         </b-form-group>
         <b-row align-h="end">
           <b-col lg="4">
@@ -103,70 +101,68 @@ export default {
       ],
       itemAdd: {
         
-          MSSV: null,
-          FullName: "",
-          Address: "",
-          BirthDay: "",
-          Phone: "",
-          Email: "",
-          UserId: null,
-          User: { UserName: "" }
+          mssv: null,
+          fullName: "",
+          address: "",
+          birthDay: "",
+          phone: "",
+          email: "",
+          userId: null,
+          user: { userName: "" }
       },
       isAdd: false,
-      username: ""
+      
     };
   },
   props: {
     itemEdit: null,
     idDel: null,
     acceptDel: null,
-    acceptEdit: null
+    acceptEdit: null,
+     message: null
   },
 
   methods: {
     closeModal(str) {
       if (str == "edit") {
+        this.message="";
         this.$nextTick(() => {
           this.$refs.edit.hide();
         });
       }
       if (str == "add") {
+        this.message="";
         this.$nextTick(() => {
           this.$refs.add.hide();
         });
       }
     },
-    updateUsername() {
-      
-       this.username =
-        this.itemEdit && this.itemEdit.User ? this.itemEdit.User.UserName : "";
-        
-    },
+ 
     EditSubmit() {
       this.$emit("update", this.itemEdit);
-      this.$nextTick(() => {
-        this.$refs.edit.hide();
-      });
+      // this.$nextTick(() => {
+      //   this.$refs.edit.hide();
+      // });
     },
     AddSubmit() {
       this.$emit("add", this.itemAdd);
-      this.$nextTick(() => {
-        this.$refs.add.hide();
-      });
+      // this.$nextTick(() => {
+      //   this.$refs.add.hide();
+      // });
     },
     showMsgDelete() {
-      var canDel = false;
+     console.log(this.idDel)
       this.$bvModal
         .msgBoxConfirm("Are you sure?")
         .then(value => {
-          canDel = value;
+          if (value) {
+            this.$emit("del", this.idDel);
+          }
         })
         .catch(err => {
           // An error occurred
         });
-      if (canDel) {
-        this.$emit("del", this.idDel);
-      }
+    
     },
 
     changeMode() {

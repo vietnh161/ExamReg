@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using ExamReg.Data;
 using ExamReg.Model.Models;
 using Microsoft.AspNet.Identity;
@@ -9,6 +9,7 @@ using Microsoft.Owin.Security;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+
 
 namespace ExamReg.WebApp.App_Start
 {
@@ -39,14 +40,14 @@ namespace ExamReg.WebApp.App_Start
                 AllowOnlyAlphanumericUserNames = false,
                 RequireUniqueEmail = true
             };
-            // Configure validation logic for passwords
-            manager.PasswordValidator = new PasswordValidator
-            {
-                RequiredLength = 5,
-                RequireNonLetterOrDigit = false,
-                RequireDigit = false,
-                RequireLowercase = false,
-                RequireUppercase = false,
+      // Configure validation logic for passwords
+      manager.PasswordValidator = new PasswordValidator
+      {
+        RequiredLength = 5,
+        RequireNonLetterOrDigit = false,
+        RequireDigit = false,
+        RequireLowercase = false,
+        RequireUppercase = false,
             };
             var dataProtectionProvider = options.DataProtectionProvider;
             if (dataProtectionProvider != null)

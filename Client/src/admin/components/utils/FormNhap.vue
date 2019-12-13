@@ -1,16 +1,17 @@
 <template>
   
     <b-card>
+             <label style="color:red">{{message}}</label>
       <b-card-body>
         <div>
           <label>Title</label>
-          <b-input type="text" v-model="editItem.title" required v-if="isEdit"></b-input>
-          <b-input type="text" v-model="title" required v-else></b-input>
+          <b-input type="text" v-model="itemEdit.title" required v-if="isEdit"></b-input>
+          <b-input type="text" v-model="itemAdd.title" required v-else></b-input>
         </div>
         <div class="mt-2">
           <label>Name</label>
-          <b-input type="text" v-model="editItem.name" required v-if="isEdit"></b-input>
-          <b-input type="text" v-model="name" required v-else></b-input>
+          <b-input type="text" v-model="itemEdit.name" required v-if="isEdit"></b-input>
+          <b-input type="text" v-model="itemAdd.name" required v-else></b-input>
         </div>
       </b-card-body>
       <b-card-footer class="text-center">
@@ -27,40 +28,28 @@
 export default {
   props: {
       item:null,
-      isEdit: Boolean
+      isEdit: Boolean,
+      itemEdit:{},
+      message:""
     },
     data() {
     return {
-      title: "",
-      name: "",
-      editItem:  {
-          id: this.item.id,
-          title: this.item.title,
-          name: this.item.name,
+      itemAdd:{
+        title:"",
+        name:""
       }
     };
   },
   methods: {
     add() {
-      if (this.title != "" && this.name != "") {
-        const obj = {
-          id: null,
-          title: this.title,
-          name: this.name
-        };
-        this.$emit("add", obj);
+      if (this.itemAdd.Title != "" && this.itemAdd.Name != "") {
+        this.$emit("add", this.itemAdd);
       }
-      this.title = "";
-      this.name = "";
     },
     update() {
-         if (this.editItem.title != "" && this.editItem.name != "") {
-    //     const obj = {
-    //       id: this.item.id,
-    //       title: this.item.title,
-    //       name: this.item.name
-    //     };
-         this.$emit("update", this.editItem);
+         if (this.itemEdit.Title != "" && this.itemEdit.Name != "") {
+    
+         this.$emit("update", this.itemEdit);
        }
     //   this.title = "";
     //   this.name = "";

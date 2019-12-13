@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HocPhanService.cs" />
+    <Compile Include="KiThiService.cs" />
     <Compile Include="LichThiService.cs" />
     <Compile Include="MonThiService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

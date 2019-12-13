@@ -17,8 +17,9 @@ namespace ExamReg.Data
         }
 
         public DbSet<CaThi> Cathi { set; get; }
-        public DbSet<LichThi> lichThi { set; get; }
-        public DbSet<PhongThi> PhongThi { set; get; }
+        public DbSet<LichThi> LichThi { set; get; }
+		public DbSet<KiThi> KiThi { set; get; }
+		public DbSet<PhongThi> PhongThi { set; get; }
         public DbSet<SinhVien> SinhVien { set; get; }
         public DbSet<MonThi> MonThi { set; get; }
         public DbSet<LopHocPhan> LopHocPhan { set; get; }

@@ -27,7 +27,8 @@ namespace ExamReg.WebApp.App_Start
         {
             ConfigAutofac(app);
             ConfigureAuth(app);
-        }
+           // app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
+    }
 
         public void ConfigAutofac(IAppBuilder app)
         {

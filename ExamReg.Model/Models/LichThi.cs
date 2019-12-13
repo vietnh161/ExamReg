@@ -32,7 +32,12 @@ namespace ExamReg.Model.Models
 
 		public int Count { set; get; }
 
-        [ForeignKey("CaThiId")]
+		public int KiThiId { set; get; }
+
+		[ForeignKey("KiThiId")]
+		public virtual KiThi KiThi { set; get; }
+
+		[ForeignKey("CaThiId")]
         public virtual CaThi CaThi { set; get; }
 
         [ForeignKey("LophpId")]

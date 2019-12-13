@@ -2,16 +2,13 @@
   <div>
     <b-container fluid class="mt-2">
       <b-row>
-        <b-col lg="1">
-          <b-button size="sm">Add Multi</b-button>
-        </b-col>
-        <b-col lg="2">
+        <b-col lg="3" md="4">
           <b-form-group
             label="Hien thi"
             label-align-sm="right"
-            label-cols-sm="6"
+            label-cols-sm="4"
             label-cols-md="4"
-            label-cols-lg="3"
+            label-cols-lg="4"
             label-size="sm"
             label-for="perPageSelect"
             class="mb-0"
@@ -19,10 +16,10 @@
             <b-form-select v-model="perPage" id="perPageSelect" size="sm" :options="pageOptions"></b-form-select>
           </b-form-group>
         </b-col>
-        <b-col lg="6">
+        <b-col lg="6" md="8" class="mb-2">
           <b-form-group
             label="Tim kiem"
-            label-cols-sm="1"
+            label-cols-sm="2"
             label-align-sm="right"
             label-size="sm"
             label-for="filterInput"
@@ -30,10 +27,11 @@
           >
             <b-input-group size="sm">
               <b-form-input
+                debounce="1000"
                 v-model="filter"
                 type="search"
                 id="filterInput"
-                placeholder="Type to Search"
+                placeholder="Mssv hoặc Họ và tên"
               ></b-form-input>
               <b-input-group-append>
                 <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
@@ -43,8 +41,8 @@
         </b-col>
 
         <b-col lg="3">
+          <b-row>
           <ActionDsSv
-
             @changeMode="changeMode"
             @update="update"
             @add="add"
@@ -53,35 +51,40 @@
             :idDel="idDel"
             :acceptDel="acceptDel"
             :acceptEdit="acceptEdit"
+            :message="message"
           />
+          <b-col xs="6"> 
+          <b-spinner label="loading..." v-show="isBusy"></b-spinner>
+          </b-col>
+          </b-row>
         </b-col>
+        
       </b-row>
       <b-table
+       :sticky-header="'760px'"
         bordered
         outlined
         hover
-        stacked="md"
+        
+        :busy.sync="isBusy"
         :id="id"
         :selectable="true"
         :select-mode="mode"
-        :items="items"
+        :items="myProvider"
         :fields="fields"
         :current-page="currentPage"
         :per-page="perPage"
         :filter="filter"
         :sort-by.sync="sortBy"
         :sort-desc.sync="sortDesc"
-        @filtered="onFiltered"
         @row-selected="getItemSelected"
-      ></b-table>
+      >
+       
+           
+      </b-table>
       <b-row>
         <b-col lg="4">
-          <p
-            v-if="filter == false || filter == null"
-          >Đang hiển thị {{perPage > totalRows? totalRows : perPage}} / {{perPage > totalRows? perPage:totalRows}} item</p>
-          <p
-            v-if="!filter == false"
-          >Đang hiển thị {{searchCount > perPage ? perPage: searchCount}} / {{searchCount > perPage ? searchCount: perPage}} item</p>
+         <p>Đang hiển thị {{totalRows > perPage ? perPage: totalRows}} / {{totalRows > perPage ? totalRows: perPage}} item</p>
         </b-col>
         <b-col lg="4">
           <b-pagination
@@ -102,6 +105,7 @@
 
 <script>
 import ActionDsSv from "./utils/ActionDsSv";
+import axios from "axios";
 export default {
   components: {
     ActionDsSv
@@ -109,267 +113,102 @@ export default {
   data() {
     return {
       fields: [
-        { key: "MSSV", sortable: true },
-        { key: "FullName", sortable: true },
-        { key: "Address", sortable: true },
-        { key: "BirthDay", sortable: true },
-        { key: "Phone", sortable: true },
-        { key: "Email", sortable: true },
-        { key: "User.UserName", sortable: true }
+        { key: "mssv", label: "Mssv", sortable: true },
+        { key: "fullName", label: "Họ và tên", sortable: true },
+        { key: "address", label: "Địa Chỉ" },
+        { key: "birthDay", label: "Ngày sinh" },
+        { key: "phone", label: "Điện thoại" },
+        { key: "email", label: "Email" },
+        { key: "user.userName", label: "username" },
       ],
-      items: [
-        {
-          SinhVienid: 1,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 2,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 3,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 4,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 5,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 6,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 7,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 8,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 9,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 10,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 11,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 12,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 13,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 14,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 15,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 16,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 17,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 18,
-          MSSV: 40,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        },
-        {
-          SinhVienid: 19,
-          MSSV: 39,
-          FullName: "Larsen Larsen",
-          Address: "Hn",
-          BirthDay: "1999-11-16",
-          Phone: "0987654431",
-          Email: "123@vnu.edu.vn",
-          UserId: 1,
-          User: { UserName: "huyviet" }
-        }
-      ],
+      items: [],
 
-      id: "tableSv",
-      perPage: 10,
-      pageOptions: [10, 20, 40],
+      id: "my-table",
+      perPage: 15,
+      pageOptions: [15, 30, 45],
       filter: null,
-      totalRows: 1,
+      totalRows: 0,
       currentPage: 1,
-      sortBy: "MSSV",
       sortDesc: false,
+      sortBy: "mssv",
+      isBusy: false,
       mode: "single",
       searchCount: null,
 
       selected: "edit",
+      
       itemsSelected: Array,
       itemEdit: Object,
       idDel: Array,
       acceptDel: null,
-      acceptEdit: null
+      acceptEdit: null,
+       message:""
     };
   },
   computed: {},
-  mounted() {
-    // Set the initial number of items
-    this.totalRows = this.items.length;
-  },
-  methods: {
-    onFiltered(filteredItems) {
-      // Trigger pagination to update the number of buttons/pages due to filtering
-      this.totalRows = filteredItems.length;
-      this.searchCount = filteredItems.length;
+  created() {},
 
-      this.currentPage = 1;
+  mounted() {},
+  methods: {
+    myProvider(ctx) {
+      this.isBusy = true;
+      var params =
+        "?currentPage=" + ctx.currentPage + "&pageSize=" + ctx.perPage;
+      if (ctx.sortBy) {
+        params += "&sort=" + ctx.sortBy;
+      }else{
+        params += "&sort=null";
+      }
+      if(ctx.filter){
+         params += "&keyword=" + ctx.filter;
+      }else{
+         params += "&keyword=null";
+      }
+      if (ctx.sortDesc !== undefined) {
+        let direction = ctx.sortDesc ? "DESC" : "ASC";
+        params += "&sortBy=" + direction;
+      }
+      const promise = axios.get(
+        "http://localhost:63834/api/sinhvien/getmultipaging" + params
+      );
+      return promise.then(data => {
+        const items = data.data;
+        this.totalRows = items.totalRow;
+        this.isBusy = false;
+        return items.result || [];
+      });
     },
     update(obj) {
       console.log(obj);
+      axios.put("http://localhost:63834/api/sinhvien/update",obj)
+      .then(rsp => {
+         this.message = "Sửa thành công";
+      }).catch(err => {
+      //  console.log(err)
+        this.message = err.response.data;
+      })
     },
     add(obj) {
-      obj.id = null;
-     console.log(obj);
+      this.message = "";
+      axios.post("http://localhost:63834/api/sinhvien/create",obj)
+      .then(rsp => {
+        this.message = "Thêm thành công";
+      }).catch(err => {
+        this.message = err.response.data;
+      })
     },
-    del(ids){
-
+    del(a){
+      this.message = "";
+      axios.delete("http://localhost:63834/api/sinhvien/delete",{data: a})
+      .then(rsp => {
+         this.$bvModal.msgBoxOk("Xóa thành công " + rsp.data.successCount+" , thất bại "+rsp.data.notSuccessCount).then(value => {
+            this.$router.go("/admin/sinhvien");
+          });
+      }).catch(err => {
+        this.$bvModal.msgBoxOk("Xóa khong thành công").then(value => {
+           
+          });
+      })
     },
     changeMode(mode, selected) {
       this.mode = mode;
@@ -393,13 +232,13 @@ export default {
       else this.acceptEdit = false;
       for (const item in obj) {
         this.itemEdit[item] = obj[item];
-      }   
+      }
     },
     getItemDel(arr) {
       this.idDel = new Array();
       this.acceptEdit = false;
       for (const item in arr) {
-        this.idDel.push(arr[item].id);
+        this.idDel.push(arr[item].sinhVienId);
       }
       if (this.idDel.length > 0) {
         this.acceptDel = true;
@@ -408,3 +247,6 @@ export default {
   }
 };
 </script>
+<style scoped >
+
+</style>

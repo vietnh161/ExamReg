@@ -17,7 +17,9 @@ namespace ExamReg.Model.Models
 
         public int SinhVienId { set; get; }
 
-        public int LichThiId { set; get; }
+	
+
+		public int LichThiId { set; get; }
 
 		public bool Status { set; get; }
 
@@ -27,5 +29,6 @@ namespace ExamReg.Model.Models
         [ForeignKey("LichThiId")]
         public virtual LichThi LichThi { set; get; }
 
+	
 	}
 }

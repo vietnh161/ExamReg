@@ -4,6 +4,7 @@ using ExamReg.Model.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,8 +19,13 @@ namespace ExamReg.Service
 		SinhVien GetByUserId(string userId);
 		List<LopHocPhan> GetLopHocPhan(int sinhVienId);
 		List<LichThi> GetLichThi(int sinhVienId);
+		SinhVien GetByConDition(Expression<Func<SinhVien, bool>> expression);
+		IEnumerable<SinhVien> GetMultiPaging(int page, int pageSize, string sort,string sortBy,string keyword, out int totalRow);
+		IEnumerable<SinhVien> GetMultiPaging(int page, int pageSize,int lichThiId, string sort, string sortBy, string keyword, out int totalRow);
 		IEnumerable<SinhVien> GetAll();
 		void SaveChanges();
+		bool checkMssv(string mssv);
+		bool checkDuplicateUpdate(SinhVien sinhVien);
 	}
 	public class SinhVienService : ISinhVienService
 	{
@@ -51,6 +57,10 @@ namespace ExamReg.Service
 
 		public SinhVien Delete(int id)
 		{
+			_sinhVienLophpRepository.DeleteMulti(x => x.SinhVienId == id);
+			_sinhVienLichThiRepository.DeleteMulti(x => x.SinhVienId == id);
+
+
 			return _sinhVienRepository.Delete(id);
 		}
 
@@ -107,6 +117,107 @@ namespace ExamReg.Service
 				return result;
 			}
 			return result;
+		}
+		public bool checkMssv(string mssv)
+		{
+			int count = _sinhVienRepository.Count(x => x.MSSV == mssv);
+			if(count > 0)
+			return true;
+			return false;
+		}
+		public bool checkDuplicateUpdate(SinhVien sinhVien)
+		{
+			int count = _sinhVienRepository.Count(x => x.MSSV == sinhVien.MSSV && x.SinhVienId == sinhVien.SinhVienId);
+			if (count > 0) return true;
+			return false;
+		}
+
+		public SinhVien GetByConDition(Expression<Func<SinhVien, bool>> expression)
+		{
+			return _sinhVienRepository.GetSingleByCondition(expression);
+		}
+
+		public IEnumerable<SinhVien> GetMultiPaging(int page, int pageSize, string sort,string sortBy,string keyword, out int totalRow)
+		{
+			IEnumerable<SinhVien> query = null;
+			if (keyword.Equals("null"))
+			{
+				 query = _sinhVienRepository.GetAll();
+			}
+			else
+			{
+				 query = _sinhVienRepository.GetMulti(x => x.FullName.ToUpper().Contains(keyword.ToUpper()) || x.MSSV.Contains(keyword));
+			}
+			
+			if (sortBy.Equals("DESC"))
+			{
+				switch (sort)
+				{
+					case "fullName":
+						query = query.OrderByDescending(x => Convert.ToString(x.FullName)).ToList();
+						break;
+					default:
+						query = query.OrderByDescending(x => x.MSSV);
+						break;
+				}
+			}
+			else
+			{
+				switch (sort)
+				{
+					case "fullName":
+						query = query.OrderBy(x => Convert.ToString(x.FullName)).ToList();
+						break;
+					default:
+						query = query.OrderBy(x => x.MSSV, StringComparer.CurrentCultureIgnoreCase);
+						break;
+				}
+			}
+			totalRow = query.Count();
+
+			return query.Skip((page - 1) * pageSize).Take(pageSize);
+		}
+
+		public IEnumerable<SinhVien> GetMultiPaging(int page, int pageSize,int lichThiId, string sort, string sortBy, string keyword, out int totalRow)
+		{
+
+			IEnumerable<SinhVien> query = _sinhVienLichThiRepository.getMultiSvbyId(lichThiId);
+			if (keyword.Equals("null"))
+			{
+				
+			}
+			else
+			{
+				query = query.Where(x => x.FullName.ToUpper().Contains(keyword.ToUpper()) || x.MSSV.Contains(keyword));
+			}
+
+			if (sortBy.Equals("DESC"))
+			{
+				switch (sort)
+				{
+					case "fullName":
+						query = query.OrderByDescending(x => Convert.ToString(x.FullName)).ToList();
+						break;
+					default:
+						query = query.OrderByDescending(x => x.MSSV);
+						break;
+				}
+			}
+			else
+			{
+				switch (sort)
+				{
+					case "fullName":
+						query = query.OrderBy(x => Convert.ToString(x.FullName)).ToList();
+						break;
+					default:
+						query = query.OrderBy(x => x.MSSV, StringComparer.CurrentCultureIgnoreCase);
+						break;
+				}
+			}
+			totalRow = query.Count();
+
+			return query.Skip((page - 1) * pageSize).Take(pageSize);
 		}
 	}
 }

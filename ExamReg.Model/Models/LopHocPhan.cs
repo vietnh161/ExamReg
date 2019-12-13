@@ -8,22 +8,28 @@ using System.Threading.Tasks;
 
 namespace ExamReg.Model.Models
 {
-    [Table("lophocphan")]
-    public class LopHocPhan
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int LophpId { set; get; }
+	[Table("lophocphan")]
+	public class LopHocPhan
+	{
+		[Key]
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public int LophpId { set; get; }
 
-        [StringLength(20)]
-        public string Title { set; get; }
+		[StringLength(20)]
+		public string Title { set; get; }
 
-        [StringLength(50)]
-        public string Name { set; get; }
+		[StringLength(50)]
+		public string Name { set; get; }
 
-        public int MonThiId { set; get; }
-        
-        [ForeignKey("MonThiId")]
-        public virtual MonThi MonThi { set; get; }
-    }
+		public int MonThiId { set; get; }
+
+		[ForeignKey("MonThiId")]
+		public virtual MonThi MonThi { set; get; }
+
+		public int KiThiId { set; get; }
+
+		[ForeignKey("KiThiId")]
+		public virtual KiThi KiThi { set; get; }
+
+	}
 }
