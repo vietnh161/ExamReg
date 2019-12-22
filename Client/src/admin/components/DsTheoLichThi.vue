@@ -4,8 +4,11 @@
       <b-row>
         <b-col lg="12">
           <h4
-            class="mb-4 mt-2"
+            class="mt-2"
           >{{title}}</h4>
+        </b-col>
+         <b-col lg="12" class="mb-4 mt-2">
+            <router-link :to="'/admin/indanhsachts/' + $route.params.id" style="color: blue" >In danh sách thí sinh</router-link>
         </b-col>
         <b-col lg="3" md="4">
           <b-form-group
@@ -48,6 +51,7 @@
         <b-col xs="6">
           <b-spinner label="loading..." v-show="isBusy"></b-spinner>
         </b-col>
+       
       </b-row>
       <b-col lg="12" v-show="items==null ? true: false">Chưa có ai đăng ký</b-col>
       <b-col lg="12" v-if="items==null ? false: true">
@@ -143,7 +147,7 @@ export default {
         ctx.perPage +
         "&lichThiId=" +
         this.$route.params.id;
-      params += "&kiThiId=4";
+      params += "&kiThiId="+localStorage.kiThiId;
       if (ctx.sortBy) {
         params += "&sort=" + ctx.sortBy;
       } else {
@@ -163,6 +167,9 @@ export default {
       );
       return promise.then(data => {
         const items = data.data;
+         items.result.forEach(element => {
+          element.birthDay = element.birthDay.slice(0,10);
+        });
         this.totalRows = items.totalRow;
         this.isBusy = false;
         return items.result || [];

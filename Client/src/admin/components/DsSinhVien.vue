@@ -173,6 +173,9 @@ export default {
       );
       return promise.then(data => {
         const items = data.data;
+        items.result.forEach(element => {
+          element.birthDay = element.birthDay.slice(0,10);
+        });
         this.totalRows = items.totalRow;
         this.isBusy = false;
         return items.result || [];

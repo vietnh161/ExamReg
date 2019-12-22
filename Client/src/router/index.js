@@ -102,6 +102,11 @@ let router = new Router({
 
           component: require('../admin/components/TaoKiThi.vue').default
         },
+        {
+          path: "indanhsachts/:id?",
+          name: "In danh sách thí sinh",
+          component: require('../admin/components/InDsThiSinh.vue').default
+        },
       ]
     },
     {
@@ -126,6 +131,11 @@ let router = new Router({
           path: 'in-lich-thi',
           name: 'In lịch thi',
           component: require('../student/components/InLichThi.vue').default
+        },
+        {
+          path: 'profile',
+          name: 'Thông tin cá nhân',
+          component: require('../student/components/ProFile.vue').default
         }
 
 

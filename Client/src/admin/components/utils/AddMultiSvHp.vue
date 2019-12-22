@@ -54,6 +54,7 @@ export default {
         // data1 = item.slice(0,item.lenth);
         // console.log(data1)
         item.forEach(element => {  
+          item.kiThiId= localStorage.kiThiId,
           data1.push(element);
         });
       };

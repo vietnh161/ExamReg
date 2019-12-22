@@ -22,6 +22,7 @@ namespace ExamReg.Service
 		SinhVien GetByConDition(Expression<Func<SinhVien, bool>> expression);
 		IEnumerable<SinhVien> GetMultiPaging(int page, int pageSize, string sort,string sortBy,string keyword, out int totalRow);
 		IEnumerable<SinhVien> GetMultiPaging(int page, int pageSize,int lichThiId, string sort, string sortBy, string keyword, out int totalRow);
+		IEnumerable<SinhVien> GetMultiByLichThi( int lichThiId, out int totalRow);
 		IEnumerable<SinhVien> GetAll();
 		void SaveChanges();
 		bool checkMssv(string mssv);
@@ -218,6 +219,13 @@ namespace ExamReg.Service
 			totalRow = query.Count();
 
 			return query.Skip((page - 1) * pageSize).Take(pageSize);
+		}
+
+		public IEnumerable<SinhVien> GetMultiByLichThi(int lichThiId, out int totalRow)
+		{
+			IEnumerable<SinhVien> query = _sinhVienLichThiRepository.getMultiSvbyId(lichThiId);
+			totalRow = query.Count();
+			return query;
 		}
 	}
 }

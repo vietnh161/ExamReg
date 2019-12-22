@@ -17,7 +17,7 @@ namespace ExamReg.Service
 		LichThi GetById(int id);
 		IEnumerable<LichThi> GetAll();
 		IEnumerable<LichThi> GetAllBySv(int sinhVienId);
-		IEnumerable<LichThi> GetDaDky(int svId);
+		IEnumerable<LichThi> GetDaDky(int svId, out int totalrow);
 		LichThiProp GetAllProp(int kiThiId);
 		IEnumerable<LichThi> GetMultiPaging(int page, int pageSize, string sort, string sortBy, string keyword, int kiThiId, out int totalRow);
 		bool checkDuplicate(LichThi lichThi);
@@ -179,9 +179,10 @@ namespace ExamReg.Service
 		}
 
 
-		public IEnumerable<LichThi> GetDaDky(int svId)
+		public IEnumerable<LichThi> GetDaDky(int svId, out int totalrow)
 		{
 			IEnumerable<LichThi> list = _lichThiRepository.getDaDky(svId);
+			totalrow = list.Count();
 			foreach (var item in list)
 			{
 				item.PhongThi = _phongThiRepository.GetSingleById(item.PhongThiId);

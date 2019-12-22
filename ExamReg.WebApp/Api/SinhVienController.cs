@@ -102,6 +102,36 @@ namespace ExamReg.WebApp.Api
       return response;
     }
 
+    [Route("getallbylichthi")]
+    [HttpGet]
+    public HttpResponseMessage GetAllByLichThi(HttpRequestMessage request, int lichThiId)
+    {
+      HttpResponseMessage response;
+
+      //Message message = new Message();
+
+      //var a = request.Content.ReadAsStringAsync();
+      //Paging paging = JsonConvert.DeserializeObject<Paging>(a.Result);
+      int totalRow = 0;
+      try
+      {
+        IEnumerable<SinhVien> model = _sinhVienService.GetMultiByLichThi(lichThiId, out totalRow);
+        ListResult<SinhVien> listResult = new ListResult<SinhVien>()
+        {
+          result = model,
+          totalRow = totalRow,
+        };
+
+        response = request.CreateResponse(HttpStatusCode.OK, listResult);
+      }
+      catch (NullReferenceException ex)
+      {
+        response = request.CreateResponse(HttpStatusCode.OK, ex.Message);
+      }
+
+      return response;
+    }
+
     [Route("getmultipaging")]
     [HttpGet]
     public HttpResponseMessage GetMultiPaging(HttpRequestMessage request, int currentPage, int pageSize, string sort, string keyword, string sortBy)
@@ -253,12 +283,12 @@ namespace ExamReg.WebApp.Api
           {
             response = request.CreateResponse(HttpStatusCode.BadRequest, "Sửa không thành công");
           }
-        
+
         }
 
       }
 
-        return response;
+      return response;
     }
 
     [Route("delete")]
@@ -275,7 +305,7 @@ namespace ExamReg.WebApp.Api
       foreach (var id in ids)
       {
         var userId = _sinhVienService.GetById(id).UserId;
-        var sv =  _sinhVienService.Delete(id);
+        var sv = _sinhVienService.Delete(id);
         if (sv != null)
         {
           try
@@ -289,12 +319,12 @@ namespace ExamReg.WebApp.Api
           {
             return request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
           }
-         
+
         }
         else
         {
           message.notSuccessCount++;
-        }      
+        }
       }
 
       _sinhVienService.SaveChanges();
@@ -305,44 +335,117 @@ namespace ExamReg.WebApp.Api
 
     [Route("dangkylichthi")]
     [HttpPost]
-    public HttpResponseMessage DangKyLichThi(HttpRequestMessage request, LichThi lichThi)
+    public HttpResponseMessage DangKyLichThi(HttpRequestMessage request, ListId listId)
     {
-      //HttpResponseMessage response = null;
-      //string uid = HttpContext.Current.User.Identity.GetUserId();
-      //LichThi lt = _lichThiService.GetById(lichThi.LichThiId);
-      //if (lt.Status)
-      //{
-      //  SinhVien sv = _sinhVienService.GetByUserId(uid);
-      //  SinhVienLichThi s = new SinhVienLichThi();
-      //  s.LichThiId = lt.LichThiId;
-      //  s.SinhVienId = sv.SinhVienId;
-      //  s.Status = true;  
+      HttpResponseMessage response = request.CreateResponse(HttpStatusCode.OK);
+      string uid = User.Identity.GetUserId();
+      if (listId.idsAdd.Length == 0 && listId.idsDel.Length == 0)
+      {
+        return request.CreateResponse(HttpStatusCode.BadRequest, "nothing change");
+      }
 
-      //  _sinhVienLichThiService.Add(s);
-      //  _sinhVienLichThiService.SaveChanges();
 
-      //  int count = lt.PhongThi.SoLuongMay;
-      //  if (lt.Count <= count)
-      //  {
-      //    lt.Count++;
-      //    _lichThiService.Update(lt);
-      //  }
-      //  else
-      //  {
-      //    lt.Status = false;
-      //    _lichThiService.Update(lt);
-      //  }
-      //  _lichThiService.SaveChanges();
-      //  response = request.CreateResponse(HttpStatusCode.OK, lt);
-      //}
-      //else
-      //{
-      //  response = request.CreateResponse(HttpStatusCode.BadRequest, "Khong the dang ky them");
-      //}
+      SinhVien sv = _sinhVienService.GetByUserId(uid);
+      foreach (var i in listId.idsAdd)
+      {
+        LichThi lt = _lichThiService.GetById(i);
+        if (lt.Status)
+        {
+          SinhVienLichThi s = new SinhVienLichThi();
+          s.LichThiId = lt.LichThiId;
+          s.SinhVienId = sv.SinhVienId;
+          s.Status = true;
 
-      //return response;
-      return null;
+      
+         // _sinhVienLichThiService.SaveChanges();
+
+          int count = lt.PhongThi.SoLuongMay;
+          if (lt.Count < count)
+          {
+            lt.Count++;
+            _lichThiService.Update(lt);
+            SinhVienLichThi svlt = _sinhVienLichThiService.GetByCondition(x => x.SinhVienId == sv.SinhVienId && x.LichThiId == i);
+            if (svlt == null)
+            {
+              _sinhVienLichThiService.Add(s);
+            }
+          }
+          else
+          {
+            lt.Status = false;
+            _lichThiService.Update(lt);
+            response = request.CreateResponse(HttpStatusCode.BadRequest, "full");
+          }
+          try
+          {
+            _sinhVienLichThiService.SaveChanges();
+            _lichThiService.SaveChanges();
+        
+          }
+          catch (DbEntityValidationException ex)
+          {
+            return request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+          }
+        }
+        else
+        {
+          response = request.CreateResponse(HttpStatusCode.BadRequest, "full");
+        }
+
+
+      }
+
+      foreach (var i in listId.idsDel)
+      {
+        SinhVienLichThi svlt = _sinhVienLichThiService.GetByCondition( x => x.SinhVienId == sv.SinhVienId && x.LichThiId == i);
+        if (svlt.LichThi.Count > 0)
+        {
+          
+          LichThi lt = _lichThiService.GetById(i);
+          _sinhVienLichThiService.Delete(svlt.Id);
+        
+          lt.Count--;
+          if (lt.Count <= lt.PhongThi.SoLuongMay)
+          {
+            lt.Status = true;
+          }
+
+          _lichThiService.Update(lt);
+          //var test = _sinhVienLichThiService.GetById(sinhVienLichThi.Id);
+          try
+          {
+            _sinhVienLichThiService.SaveChanges();
+            _lichThiService.SaveChanges();
+          }
+          catch (DbEntityValidationException ex)
+          {
+            return request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+          }
+       
+          response = request.CreateResponse(HttpStatusCode.OK, "ok");
+        }
+        else
+        {
+          response = request.CreateResponse(HttpStatusCode.BadRequest, "co loi xay ra");
+        }
+      }
+      int totalrow = 0;
+      var result = _lichThiService.GetDaDky(sv.SinhVienId, out totalrow);
+      ListResult<LichThi> listResult = new ListResult<LichThi>()
+      {
+        result = result,
+        totalRow = totalrow,
+      };
+      return request.CreateResponse(HttpStatusCode.OK, listResult);
     }
+    [Route("savechange")]
+    [HttpPost]
+    public HttpResponseMessage Commit(HttpRequestMessage request)
+    {
+
+      return request.CreateResponse(HttpStatusCode.OK);
+    }
+
 
     [Route("huydangkylichthi")]
     [HttpPost]
@@ -398,13 +501,14 @@ namespace ExamReg.WebApp.Api
     [HttpGet]
     public HttpResponseMessage GetLichThiDaDky(HttpRequestMessage request)
     {
+      int totalrow = 0;
       var id = User.Identity.GetUserId();
       SinhVien sv = _sinhVienService.GetByUserId(id);
-      var result = _lichThiService.GetDaDky(sv.SinhVienId);
+      var result = _lichThiService.GetDaDky(sv.SinhVienId, out totalrow);
       ListResult<LichThi> listResult = new ListResult<LichThi>()
       {
         result = result,
-        totalRow = 0,
+        totalRow = totalrow,
       };
       return request.CreateResponse(HttpStatusCode.OK, listResult);
     }
@@ -424,6 +528,11 @@ namespace ExamReg.WebApp.Api
       return null;
     }
 
+  }
+  public class ListId
+  {
+    public int[] idsAdd { set; get; }
+    public int[] idsDel { set; get; }
   }
 }
 

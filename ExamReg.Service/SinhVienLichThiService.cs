@@ -67,8 +67,12 @@ namespace ExamReg.Service
 		public SinhVienLichThi GetById(int id)
 		{
 			var result = _sinhVienLichThiRepository.GetSingleById(id);
-			result.SinhVien = _sinhVienRepository.GetSingleById(result.SinhVienId);
-			result.LichThi = _lichThiRepository.GetSingleById(result.LichThiId);
+			if(result != null)
+			{
+				result.SinhVien = _sinhVienRepository.GetSingleById(result.SinhVienId);
+				result.LichThi = _lichThiRepository.GetSingleById(result.LichThiId);
+			}
+		
 			return result;
 		}
 
@@ -79,7 +83,14 @@ namespace ExamReg.Service
 
 		public SinhVienLichThi GetByCondition(Expression<Func<SinhVienLichThi, bool>> expression, string[] includes = null)
 		{
-			return _sinhVienLichThiRepository.GetSingleByCondition(expression,includes);
+			SinhVienLichThi svlt = _sinhVienLichThiRepository.GetSingleByCondition(expression,includes);
+			if (svlt != null)
+			{
+				svlt.LichThi = _lichThiRepository.GetSingleById(svlt.LichThiId);
+				svlt.SinhVien = _sinhVienRepository.GetSingleById(svlt.SinhVienId);
+			}
+			return svlt;
+
 		}
 
 		public IEnumerable<SinhVienLichThi> GetMulti(Expression<Func<SinhVienLichThi, bool>> expression, string[] includes = null)

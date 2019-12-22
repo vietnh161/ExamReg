@@ -141,7 +141,7 @@ export default {
     nextPage(page) {
       this.isBusy = true;
       var params =
-        "?currentPage=" + page + "&pageSize=" + this.perPage + "&kithi=4";
+        "?currentPage=" + page + "&pageSize=" + this.perPage + "&kithi="+localStorage.kiThiId;
       if (this.filter != "") {
         params += "&keyword=" + this.filter;
       } else {
@@ -164,7 +164,7 @@ export default {
         this.currentPage +
         "&pageSize=" +
         perPage +
-        "&kithi=4" +
+        "&kithi="+localStorage.kiThiId +
         "&keyword=null";
       axios
         .get("http://localhost:63834/api/hocphan/getmultipaging" + params)

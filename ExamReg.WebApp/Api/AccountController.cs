@@ -102,6 +102,20 @@ namespace ExamReg.WebApp.Api
       return request.CreateResponse(HttpStatusCode.OK,a);
     }
 
+    [HttpGet]
+    [Authorize]
+    [Route("getProfile")]
+    public HttpResponseMessage GetProfile(HttpRequestMessage request)
+    {
+
+      var id = User.Identity.GetUserId();
+      SinhVien sv = _sinhVienService.GetByUserId(id);
+    
+
+
+      return request.CreateResponse(HttpStatusCode.OK, sv);
+    }
+
 
     [HttpPost]
     [Route("addUser")]

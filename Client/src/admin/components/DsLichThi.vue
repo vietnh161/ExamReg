@@ -82,7 +82,7 @@
           @row-selected="getItemSelected"
         >
           <template v-slot:cell(details)="row">
-            <b-link :href="'/admin/lichthi/'+ row.item.lichThiId">Chi tiết</b-link>
+            <router-link :to="'/admin/lichthi/'+ row.item.lichThiId" style="color: blue">Chi tiết</router-link>
           </template>
         </b-table>
 
@@ -176,12 +176,15 @@ export default {
       } else {
         params += "&keyword=null";
       }
-      params += "&kiThiId=4";
+      params += "&kiThiId=" +localStorage.kiThiId;
       const promise = axios.get(
         "http://localhost:63834/api/lichthi/getmultipaging" + params
       );
       return promise.then(data => {
         const items = data.data;
+         items.result.forEach(element => {
+          element.ngayThi = element.ngayThi.slice(0,10);
+        });
         this.totalRows = items.totalRow;
         this.isBusy = false;
         return items.result || [];

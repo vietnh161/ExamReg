@@ -13,7 +13,9 @@
           <b-form-select v-model="selected" :options="options" class="mt-1" @input="setkithi"></b-form-select>
 
           <b-nav-item-dropdown :text="username" right>
-            <b-dropdown-item href="#">Profile</b-dropdown-item>
+           <router-link to="/student/profile" class="text-center">Profile</router-link>
+         
+            
             <b-dropdown-item href="#" @click.stop.prevent="logout">Logout</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>

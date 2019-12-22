@@ -107,9 +107,9 @@ namespace ExamReg.WebApp.Api
         foreach (var item in list)
         {
           var svId = _sinhVienService.GetByConDition(x => x.MSSV == item.MSSV).SinhVienId;
-          var hpId = _hocPhanService.GetByConDition(x => x.Title == item.MaHp).LophpId;
+          var hpId = _hocPhanService.GetByConDition(x => x.Title == item.MaHp && x.KiThiId == item.KiThiId).LophpId;
           bool isContain = _sinhVienLophpService.checkDuplicate(x => x.LophpId == hpId && x.SinhVienId == svId);
-          if (!isContain)
+          if (!isContain && hpId != null)
           {
             var svhp = new SinhVienLophp()
             {
@@ -209,6 +209,7 @@ namespace ExamReg.WebApp.Api
   {
     public string MSSV { set; get; }
     public string MaHp { set; get; }
+    public int KiThiId { set; get; }
     public bool duDieuKien { set; get; }
   }
 }
