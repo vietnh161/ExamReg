@@ -71,7 +71,7 @@
         bordered
         outlined
         hover
-        
+        ref="tabledt"
         :busy.sync="isBusy"
         :id="id"
         :selectable="true"
@@ -202,18 +202,23 @@ export default {
   
     update(obj) {
       console.log(obj);
-      for (var i in this.items) {
-        if (this.items[i].id == obj.id) {
-          this.items[i].age = obj.age;
-          this.items[i].first_name = obj.first_name;
-          this.items[i].last_name = obj.last_name;
-          // console.log(this.items[i])
-        }
-      }
+    
+      
     },
-    add(obj) {
-      obj.id = null;
-      this.items.push(obj);
+    add(obj) { 
+       obj.lopHpId = this.$route.params.id;
+       axios.post(
+        "http://localhost:63834/api/sinhvienlophp/create",obj)
+        .then(rsp => {
+          this.$bvModal.msgBoxOk("Thêm thành công").then(value => {
+            axios.get("http://localhost:63834/api/sinhvienlophp/getmultipaging").then(rsp => {
+              this.items = rsp.data;
+            });
+          });
+        })
+        .catch(err => {
+          this.$bvModal.msgBoxOk("Thêm khong thành công");
+        });
     },
     changeMode(mode, selected) {
       this.mode = mode;

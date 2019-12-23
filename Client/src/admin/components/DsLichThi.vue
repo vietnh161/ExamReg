@@ -68,6 +68,7 @@
           bordered
           outlined
           hover
+          ref="tablelt"
           :busy.sync="isBusy"
           :id="id"
           :selectable="true"
@@ -196,6 +197,7 @@ export default {
       axios.put("http://localhost:63834/api/lichthi/update",obj)
       .then(rsp => {
          this.message = "Sửa thành công";
+         this.$refs.tablelt.refresh();
       }).catch(err => {
       //  console.log(err)
         this.message = err.response.data;
@@ -206,6 +208,7 @@ export default {
       axios.post("http://localhost:63834/api/lichthi/create",obj)
       .then(rsp => {
         this.message = "Thêm thành công";
+         this.$refs.tablelt.refresh();
       }).catch(err => {
         this.message = err.response.data;
       })
@@ -215,7 +218,7 @@ export default {
       axios.delete("http://localhost:63834/api/lichthi/delete",{data: a})
       .then(rsp => {
          this.$bvModal.msgBoxOk("Xóa thành công").then(value => {
-            this.$router.go("/admin/lichthi");
+            this.$refs.tablelt.refresh();
           });
       }).catch(err => {
         this.$bvModal.msgBoxOk("Xóa khong thành công").then(value => {

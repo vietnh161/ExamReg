@@ -10,7 +10,7 @@
 
       <b-collapse id="navbarSupportedContent" is-nav>
         <b-navbar-nav class="ml-auto">
-          <b-form-select v-model="selected" :options="options" class="mt-1" @input="setkithi"></b-form-select>
+          <b-form-select v-model="selected" :options="options" class="mt-1" @change="setkithi"></b-form-select>
 
           <b-nav-item-dropdown :text="username" right>
             <b-dropdown-item href="#">Profile</b-dropdown-item>
@@ -69,7 +69,8 @@ export default {
       }
     },
     setkithi(value){
-      localStorage.setItem('kiThiId',value )
+      localStorage.setItem('kiThiId',value );
+      this.$router.go("/admin/monthi");
     },
      logout() {
       this.$emit("logout", "");

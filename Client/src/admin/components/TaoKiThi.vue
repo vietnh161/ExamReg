@@ -113,7 +113,9 @@ export default {
         .post("http://localhost:63834/api/kithi/create", { name: this.name })
         .then(rsp => {
           this.$bvModal.msgBoxOk("Thêm thành công").then(value => {
-            this.$router.go("/admin/kithi");
+            axios.get("http://localhost:63834/api/kithi/getall").then(rsp => {
+              this.items = rsp.data;
+            });
           });
         })
         .catch(err => {
@@ -125,7 +127,9 @@ export default {
         .put("http://localhost:63834/api/kithi/update", this.itemsSelected)
         .then(rsp => {
           this.$bvModal.msgBoxOk("Sửa thành công").then(value => {
-            this.$router.go("/admin/kithi");
+            axios.get("http://localhost:63834/api/kithi/getall").then(rsp => {
+              this.items = rsp.data;
+            });
           });
         })
         .catch(err => {
@@ -165,7 +169,11 @@ export default {
                       console.log(error.response.data);
                     });
 
-                  this.$router.go("/admin/kithi");
+                  axios
+                    .get("http://localhost:63834/api/kithi/getall")
+                    .then(rsp => {
+                      this.items = rsp.data;
+                    });
                 });
               })
               .catch(err => {

@@ -6,7 +6,7 @@
           <h5>Hãy chắc chắn rằng file được chọn có format giống như bên dưới hình:</h5>
         </b-col>
         <b-col lg="6">
-          <b-form-file @change="previewFiles" size="sm"></b-form-file>
+          <b-form-file  v-model="data" @change="previewFiles" size="sm"></b-form-file>
         </b-col>
         <b-col lg="1"  v-if="isLoading">
           <b-spinner label="Loading..."></b-spinner>
@@ -29,6 +29,7 @@ import axios from "axios";
 export default {
   data() {
     return {
+      data:null,
       items: [],
       img: "addSv.png",
         isLoading:false
@@ -37,6 +38,7 @@ export default {
   },
   methods: {
     previewFiles(e) {
+     
       var files = e.target.files,
         f = files[0];
       var reader = new FileReader();
@@ -54,12 +56,14 @@ export default {
         // data1 = item.slice(0,item.lenth);
         // console.log(data1)
         item.forEach(element => {  
-          item.kiThiId= localStorage.kiThiId,
+          element.kiThiId= localStorage.kiThiId,
+         
           data1.push(element);
         });
       };
       //
     //  console.log(data1);
+    
       reader.readAsArrayBuffer(f);
       this.items = data1;
       //  console.log(this.items);

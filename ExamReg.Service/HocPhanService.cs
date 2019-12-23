@@ -18,6 +18,7 @@ namespace ExamReg.Service
 		LopHocPhan GetById(int id);
 		IEnumerable<LopHocPhan> GetAll();
 		IEnumerable<LopHocPhan> GetMulti(Expression<Func<LopHocPhan, bool>> expression);
+		bool checkDuplicate(string maHocPhan, int kiThiId);
 		bool checkDuplicate(string maHocPhan);
 		IEnumerable<LopHocPhan> GetMultiPaging(int page, int pageSize, int kithiId, string keyword, out int totalRow);
 		IEnumerable<LopHocPhan> GetMultiPaging(int page, int pageSize, int monThiId, int kithi, string keyword, out int totalRow);
@@ -48,11 +49,18 @@ namespace ExamReg.Service
 			_lopHocPhanRepository.Add(LopHocPhan);
 		}
 
-		public bool checkDuplicate(string maHocPhan)
+		public bool checkDuplicate(string maHocPhan, int kiThiId)
 		{
-			if (_lopHocPhanRepository.Count( x => x.Title == maHocPhan) > 0) return true;
+			if (_lopHocPhanRepository.Count( x => x.Title == maHocPhan && x.KiThiId == kiThiId) > 0) return true;
 			return false;
 		}
+
+		public bool checkDuplicate(string maHocPhan)
+		{
+			if (_lopHocPhanRepository.Count(x => x.Title == maHocPhan ) > 0) return true;
+			return false;
+		}
+
 		public IEnumerable<LopHocPhan> GetMulti(Expression<Func<LopHocPhan, bool>> expression)
 		{
 			return _lopHocPhanRepository.GetMulti(expression);
@@ -132,5 +140,7 @@ namespace ExamReg.Service
 			}
 
 		}
+
+	
 	}
 }

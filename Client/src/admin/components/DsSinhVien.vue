@@ -65,7 +65,7 @@
         bordered
         outlined
         hover
-        
+        ref = "tablesv"
         :busy.sync="isBusy"
         :id="id"
         :selectable="true"
@@ -151,6 +151,7 @@ export default {
   mounted() {},
   methods: {
     myProvider(ctx) {
+      console.log(ctx);
       this.isBusy = true;
       var params =
         "?currentPage=" + ctx.currentPage + "&pageSize=" + ctx.perPage;
@@ -186,6 +187,7 @@ export default {
       axios.put("http://localhost:63834/api/sinhvien/update",obj)
       .then(rsp => {
          this.message = "Sửa thành công";
+         this.$refs.tablesv.refresh();
       }).catch(err => {
       //  console.log(err)
         this.message = err.response.data;
@@ -196,6 +198,7 @@ export default {
       axios.post("http://localhost:63834/api/sinhvien/create",obj)
       .then(rsp => {
         this.message = "Thêm thành công";
+         this.$refs.tablesv.refresh();
       }).catch(err => {
         this.message = err.response.data;
       })
@@ -206,6 +209,7 @@ export default {
       .then(rsp => {
          this.$bvModal.msgBoxOk("Xóa thành công " + rsp.data.successCount+" , thất bại "+rsp.data.notSuccessCount).then(value => {
             this.$router.go("/admin/sinhvien");
+             this.$refs.tablesv.refresh();
           });
       }).catch(err => {
         this.$bvModal.msgBoxOk("Xóa khong thành công").then(value => {

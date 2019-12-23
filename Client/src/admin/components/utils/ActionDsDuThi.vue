@@ -37,13 +37,13 @@
         </b-form-group>
         <b-form-group :label="'Qua môn'">
           <b-form-select
-            v-model="itemEdit.DuDieuKien"
+            v-model="itemEdit.duDieuKien"
             :options="[{value:true,text:'Có'},{value:false,text:'Không'}]"
           ></b-form-select>
         </b-form-group>
           <b-row align-h="end">
           <b-col lg="4">
-            <b-button size="sm" @click="closeModal('add')">Cancel</b-button>
+            <b-button size="sm" @click="closeModal('edit')">Cancel</b-button>
             <b-button type="submit" variant="primary" size="sm">OK</b-button>
           </b-col>
         </b-row>
@@ -52,12 +52,12 @@
     <b-modal id="modal-add" ref="add" title="BootstrapVue" hide-header hide-footer>
       <b-form @submit.stop.prevent="AddSubmit">
         <b-form-group :label="'MSSV'">
-          <b-form-input type="number" v-model="itemEdit.MSSV" required></b-form-input>
+          <b-form-input type="number" v-model="itemAdd.MSSV" required></b-form-input>
         </b-form-group>
         <b-form-group :label="'Qua môn'">
           <b-form-select
             required
-            v-model="itemEdit.DuDieuKien"
+            v-model="itemAdd.DuDieuKien"
             :options="[{value:true,text:'Có'},{value:false,text:'Không'}]"
           ></b-form-select>
         </b-form-group>

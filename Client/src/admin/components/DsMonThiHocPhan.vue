@@ -1,6 +1,5 @@
 <template>
   <div id="DsMthp">
-  
     <b-container fluid class="mt-2">
       <b-row>
         <b-col lg="3" md="4">
@@ -180,9 +179,9 @@ export default {
       })
 
       .catch(error => {
-       // console.log(error.response.status);
-        if(error.response.status == "401"){
-          this.$router.push('/')
+        // console.log(error.response.status);
+        if (error.response.status == "401") {
+          this.$router.push("/");
         }
       });
   },
@@ -230,11 +229,8 @@ export default {
     search(keyword) {
       this.currentPage = 1;
       var params =
-        "?currentPage=" +
-        this.currentPage +
-        "&pageSize=" +
-        this.perPage ;
-      
+        "?currentPage=" + this.currentPage + "&pageSize=" + this.perPage;
+
       if (keyword != "") {
         params += "&keyword=" + keyword;
       } else {
@@ -265,9 +261,25 @@ export default {
         .post("http://localhost:63834/api/monthi/create", obj)
         .then(rsp => {
           this.$bvModal.msgBoxOk("Thêm thành công").then(value => {
-           this.isCreating = false;
-           this.isEditting = false;
-            this.$router.go("/admin/monthi");
+            this.isCreating = false;
+            this.isEditting = false;
+            this.isBusy = true;
+            axios
+              .get(
+                "http://localhost:63834/api/monthi/getmultipaging?currentPage=1&pageSize=15&kithi=4&keyword=null"
+              )
+              .then(response => {
+                this.items = response.data.result;
+                this.totalRows = response.data.totalRow;
+                this.isBusy = false;
+              })
+
+              .catch(error => {
+                // console.log(error.response.status);
+                if (error.response.status == "401") {
+                  this.$router.push("/");
+                }
+              });
           });
         })
         .catch(err => {
@@ -278,14 +290,32 @@ export default {
     },
     deleteCourse(id) {
       this.$bvModal
-        .msgBoxConfirm("Thao tác sẽ xóa toàn bộ dữ liệu liên quan, bạn chắc chứ?")
+        .msgBoxConfirm(
+          "Thao tác sẽ xóa toàn bộ dữ liệu liên quan, bạn chắc chứ?"
+        )
         .then(value => {
           if (value) {
             axios
               .delete("http://localhost:63834/api/monthi/delete?id=" + id)
               .then(rsp => {
                 this.$bvModal.msgBoxOk("Xóa thành công").then(value => {
-                  this.$router.go("/admin/monthi");
+                  this.isBusy = true;
+                  axios
+                    .get(
+                      "http://localhost:63834/api/monthi/getmultipaging?currentPage=1&pageSize=15&kithi=4&keyword=null"
+                    )
+                    .then(response => {
+                      this.items = response.data.result;
+                      this.totalRows = response.data.totalRow;
+                      this.isBusy = false;
+                    })
+
+                    .catch(error => {
+                      // console.log(error.response.status);
+                      if (error.response.status == "401") {
+                        this.$router.push("/");
+                      }
+                    });
                 });
               })
               .catch(err => {
@@ -301,13 +331,29 @@ export default {
         .put("http://localhost:63834/api/monthi/update", obj)
         .then(rsp => {
           this.$bvModal.msgBoxOk("Sửa thành công").then(value => {
-            this.$router.go("/admin/monthi");
+            this.isBusy = true;
+            axios
+              .get(
+                "http://localhost:63834/api/monthi/getmultipaging?currentPage=1&pageSize=15&kithi=4&keyword=null"
+              )
+              .then(response => {
+                this.items = response.data.result;
+                this.totalRows = response.data.totalRow;
+                this.isBusy = false;
+              })
+
+              .catch(error => {
+                // console.log(error.response.status);
+                if (error.response.status == "401") {
+                  this.$router.push("/");
+                }
+              });
           });
         })
         .catch(err => {
           //  console.log(err)
           this.$bvModal.msgBoxOk(err.response.data).then(value => {
-             this.$router.go("/admin/monthi");
+            this.$router.go("/admin/monthi");
           });
         });
       this.isEditting = false;

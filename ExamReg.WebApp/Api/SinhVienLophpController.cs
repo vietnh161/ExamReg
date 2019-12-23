@@ -17,7 +17,7 @@ namespace ExamReg.WebApp.Api
     ISinhVienLophpService _sinhVienLophpService;
     ISinhVienService _sinhVienService;
     IHocPhanService _hocPhanService;
-    public SinhVienLophpController(ISinhVienLophpService _sinhVienLophpService,  ISinhVienService _sinhVienService,IHocPhanService _hocPhanService)
+    public SinhVienLophpController(ISinhVienLophpService _sinhVienLophpService, ISinhVienService _sinhVienService, IHocPhanService _hocPhanService)
     {
       this._sinhVienLophpService = _sinhVienLophpService;
       this._sinhVienService = _sinhVienService;
@@ -44,7 +44,7 @@ namespace ExamReg.WebApp.Api
     }
     [Route("getmultipaging")]
     [HttpGet]
-    public HttpResponseMessage GetMultiPaging(HttpRequestMessage request, int currentPage, int pageSize,int lopHpId, string keyword)
+    public HttpResponseMessage GetMultiPaging(HttpRequestMessage request, int currentPage, int pageSize, int lopHpId, string keyword)
     {
       HttpResponseMessage response;
       //Message message = new Message();
@@ -54,8 +54,8 @@ namespace ExamReg.WebApp.Api
       int totalRow = 0;
       try
       {
-        IEnumerable<SinhVienLophp> model = _sinhVienLophpService.GetMultiPaging(currentPage, pageSize, keyword,lopHpId, out totalRow);
-        foreach(var item in model)
+        IEnumerable<SinhVienLophp> model = _sinhVienLophpService.GetMultiPaging(currentPage, pageSize, keyword, lopHpId, out totalRow);
+        foreach (var item in model)
         {
           item.SinhVien = _sinhVienService.GetById(item.SinhVienId);
         }
@@ -77,37 +77,20 @@ namespace ExamReg.WebApp.Api
 
     [Route("create")]
     [HttpPost]
-    public HttpResponseMessage Create(HttpRequestMessage request, SinhVienLophp sinhVienLophp)
+    public HttpResponseMessage Create(HttpRequestMessage request, SvHpVm SvHpVm)
     {
       HttpResponseMessage response = null;
-      if (!ModelState.IsValid)
-      {
-        response = request.CreateResponse(HttpStatusCode.BadRequest, ModelState);
-      }
-      else
-      {
-        _sinhVienLophpService.Add(sinhVienLophp);
-        _sinhVienLophpService.SaveChanges();
-        response = request.CreateResponse(HttpStatusCode.Created, sinhVienLophp);
-
-      }
-
-      return response;
-    }
-
-    [Route("addMulti")]
-    [HttpPost]
-    public HttpResponseMessage addMulti(HttpRequestMessage request)
-    {
       Message message = new Message();
-      var a = request.Content.ReadAsStringAsync();
-      List<SvHpVm> list = JsonConvert.DeserializeObject<List<SvHpVm>>(a.Result);
       try
       {
-        foreach (var item in list)
+        if (!ModelState.IsValid)
         {
-          var svId = _sinhVienService.GetByConDition(x => x.MSSV == item.MSSV).SinhVienId;
-          var hpId = _hocPhanService.GetByConDition(x => x.Title == item.MaHp && x.KiThiId == item.KiThiId).LophpId;
+          response = request.CreateResponse(HttpStatusCode.BadRequest, ModelState);
+        }
+        else
+        {
+          var svId = _sinhVienService.GetByConDition(x => x.MSSV == SvHpVm.MSSV).SinhVienId;
+          var hpId = SvHpVm.LophpId;
           bool isContain = _sinhVienLophpService.checkDuplicate(x => x.LophpId == hpId && x.SinhVienId == svId);
           if (!isContain && hpId != null)
           {
@@ -115,48 +98,10 @@ namespace ExamReg.WebApp.Api
             {
               LophpId = hpId,
               SinhVienId = svId,
-              DuDieuKien = true,
-            
+              DuDieuKien = SvHpVm.duDieuKien,
+
             };
             _sinhVienLophpService.Add(svhp);
-            _sinhVienLophpService.SaveChanges();
-            message.successCount++;
-          }
-          else
-          {
-            message.notSuccessCount++;
-          }
-        }
-      }
-      catch(NullReferenceException ex)
-      {
-        message.message = ex.Message;
-        message.notSuccessCount++;
-      }
-     
-      return request.CreateResponse(HttpStatusCode.OK,message);
-    }
-
-    [Route("khongquamon")]
-    [HttpPost]
-    public HttpResponseMessage addMultiKoQuaMon(HttpRequestMessage request)
-    {
-      Message message = new Message();
-      var a = request.Content.ReadAsStringAsync();
-      List<SvHpVm> list = JsonConvert.DeserializeObject<List<SvHpVm>>(a.Result);
-      try
-      {
-        foreach (var item in list)
-        {
-          var svId = _sinhVienService.GetByConDition(x => x.MSSV == item.MSSV).SinhVienId;
-          var hpId = _hocPhanService.GetByConDition(x => x.Title == item.MaHp).LophpId;
-
-
-          var data = _sinhVienLophpService.GetByConDition(x => x.LophpId == hpId && x.SinhVienId == svId);
-          if (data != null)
-          {
-            data.DuDieuKien = false;
-            _sinhVienLophpService.Update(data);
             _sinhVienLophpService.SaveChanges();
             message.successCount++;
           }
@@ -174,42 +119,124 @@ namespace ExamReg.WebApp.Api
 
       return request.CreateResponse(HttpStatusCode.OK, message);
     }
+ 
 
-    [Route("update")]
-    [HttpPut]
-    public HttpResponseMessage Update(HttpRequestMessage request, SinhVienLophp sinhVienLophp)
-    {
-      HttpResponseMessage response = null;
-      if (!ModelState.IsValid)
-      {
-        response = request.CreateResponse(HttpStatusCode.BadRequest, ModelState);
-      }
-      else
-      {
-        _sinhVienLophpService.Update(sinhVienLophp);
-        _sinhVienLophpService.SaveChanges();
-        response = request.CreateResponse(HttpStatusCode.Created, sinhVienLophp);
-
-      }
-
-      return response;
-    }
-
-    [Route("delete")]
-    [HttpDelete]
-    public HttpResponseMessage Delete(HttpRequestMessage request, int id)
-    {
-      var model = _sinhVienLophpService.Delete(id);
-
-      HttpResponseMessage response = request.CreateResponse(HttpStatusCode.OK, model);
-      return response;
-    }
-  }
-  public class SvHpVm
+  [Route("addMulti")]
+  [HttpPost]
+  public HttpResponseMessage addMulti(HttpRequestMessage request)
   {
-    public string MSSV { set; get; }
-    public string MaHp { set; get; }
-    public int KiThiId { set; get; }
-    public bool duDieuKien { set; get; }
+    Message message = new Message();
+    var a = request.Content.ReadAsStringAsync();
+    List<SvHpVm> list = JsonConvert.DeserializeObject<List<SvHpVm>>(a.Result);
+    try
+    {
+      foreach (var item in list)
+      {
+        var svId = _sinhVienService.GetByConDition(x => x.MSSV == item.MSSV).SinhVienId;
+        var hpId = _hocPhanService.GetByConDition(x => x.Title == item.MaHp && x.KiThiId == item.KiThiId).LophpId;
+        bool isContain = _sinhVienLophpService.checkDuplicate(x => x.LophpId == hpId && x.SinhVienId == svId);
+        if (!isContain && hpId != null)
+        {
+          var svhp = new SinhVienLophp()
+          {
+            LophpId = hpId,
+            SinhVienId = svId,
+            DuDieuKien = true,
+
+          };
+          _sinhVienLophpService.Add(svhp);
+          _sinhVienLophpService.SaveChanges();
+          message.successCount++;
+        }
+        else
+        {
+          message.notSuccessCount++;
+        }
+      }
+    }
+    catch (NullReferenceException ex)
+    {
+      message.message = ex.Message;
+      message.notSuccessCount++;
+    }
+
+    return request.CreateResponse(HttpStatusCode.OK, message);
   }
+
+  [Route("khongquamon")]
+  [HttpPost]
+  public HttpResponseMessage addMultiKoQuaMon(HttpRequestMessage request)
+  {
+    Message message = new Message();
+    var a = request.Content.ReadAsStringAsync();
+    List<SvHpVm> list = JsonConvert.DeserializeObject<List<SvHpVm>>(a.Result);
+    try
+    {
+      foreach (var item in list)
+      {
+        var svId = _sinhVienService.GetByConDition(x => x.MSSV == item.MSSV).SinhVienId;
+        var hpId = _hocPhanService.GetByConDition(x => x.Title == item.MaHp).LophpId;
+
+
+        var data = _sinhVienLophpService.GetByConDition(x => x.LophpId == hpId && x.SinhVienId == svId);
+        if (data != null)
+        {
+          data.DuDieuKien = false;
+          _sinhVienLophpService.Update(data);
+          _sinhVienLophpService.SaveChanges();
+          message.successCount++;
+        }
+        else
+        {
+          message.notSuccessCount++;
+        }
+      }
+    }
+    catch (NullReferenceException ex)
+    {
+      message.message = ex.Message;
+      message.notSuccessCount++;
+    }
+
+    return request.CreateResponse(HttpStatusCode.OK, message);
+  }
+
+  [Route("update")]
+  [HttpPut]
+  public HttpResponseMessage Update(HttpRequestMessage request, SinhVienLophp sinhVienLophp)
+  {
+    HttpResponseMessage response = null;
+    if (!ModelState.IsValid)
+    {
+      response = request.CreateResponse(HttpStatusCode.BadRequest, ModelState);
+    }
+    else
+    {
+      _sinhVienLophpService.Update(sinhVienLophp);
+      _sinhVienLophpService.SaveChanges();
+      response = request.CreateResponse(HttpStatusCode.Created, sinhVienLophp);
+
+    }
+
+    return response;
+  }
+
+  [Route("delete")]
+  [HttpDelete]
+  public HttpResponseMessage Delete(HttpRequestMessage request, int id)
+  {
+    var model = _sinhVienLophpService.Delete(id);
+
+    HttpResponseMessage response = request.CreateResponse(HttpStatusCode.OK, model);
+    return response;
+  }
+}
+public class SvHpVm
+{
+  public string MSSV { set; get; }
+  public string MaHp { set; get; }
+  public int KiThiId { set; get; }
+    public int LophpId { set; get; }
+  public bool duDieuKien { set; get; }
+}
 }

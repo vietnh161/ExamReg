@@ -155,7 +155,7 @@ namespace ExamReg.WebApp.Api
             {
               //dont do anything
             }
-            else if (!_hocPhanService.checkDuplicate(item.MaHp))
+            else if (!_hocPhanService.checkDuplicate(item.MaHp,item.KiThiId))
             {
               var hocphan = new LopHocPhan()
               {
@@ -177,7 +177,7 @@ namespace ExamReg.WebApp.Api
           else
           {
             var id = _monThiService.GetByConDition(x => x.Title == item.MaMon).MonThiId;
-            if (!_hocPhanService.checkDuplicate(item.MaHp))
+            if (!_hocPhanService.checkDuplicate(item.MaHp,item.KiThiId))
             {
               var hocphan = new LopHocPhan()
               {
